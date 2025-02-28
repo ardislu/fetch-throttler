@@ -138,20 +138,9 @@ export class FetchThrottler {
     const newHeaders = new Headers(options.headers);
     Object.entries(throttle.requestOptions?.headers ?? {}).forEach(e => newHeaders.set(e[0], e[1]));
     const newOptions = Object.fromEntries([
-      ['method', options.method],
-      ['referrer', options.referrer],
-      ['referrerPolicy', options.referrerPolicy],
-      ['mode', options.mode],
-      ['credentials', options.credentials],
-      ['cache', options.cache],
-      ['redirect', options.redirect],
-      ['integrity', options.integrity],
-      ['keepalive', options.keepalive],
-      ['priority', options.priority],
-      ['signal', options.signal],
+      ...Object.entries(options),
       ...Object.entries(throttle.requestOptions),
-      ['headers', newHeaders],
-      ['body', options.body],
+      ['headers', newHeaders]
     ]);
     const newRequest = new Request(newUrl, newOptions);
 
