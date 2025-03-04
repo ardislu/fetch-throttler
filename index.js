@@ -198,7 +198,6 @@ export class FetchThrottler {
    * Delete all throttles.
    */
   clear() {
-    this.#buckets.forEach(b => b.stop());
     this.#buckets.clear();
     this.#throttles.clear();
     this.#hostnames.clear();
@@ -304,7 +303,6 @@ export class FetchThrottler {
       }
     }
     this.#throttles.delete(throttleId);
-    this.#buckets.get(throttleId).stop();
     this.#buckets.delete(throttleId);
   }
 
