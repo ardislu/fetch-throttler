@@ -1,5 +1,5 @@
 const STORE = {
-  fetch: globalThis.fetch
+  fetch: globalThis.fetch.bind(globalThis)
 }
 Object.freeze(STORE);
 
@@ -247,7 +247,7 @@ export class FetchThrottler {
    * **DANGER**: This operation may have unexpected side effects, only use it if you understand what you are doing.
    */
   dangerouslySetGlobalFetch() {
-    globalThis.fetch = this.fetch;
+    globalThis.fetch = this.fetch.bind(this);
   }
 
   toJSON() {
