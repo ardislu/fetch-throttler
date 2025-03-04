@@ -54,22 +54,31 @@ export class Bucket {
     this.#maxTokens = options.maxTokens ?? (this.#tokens === 0 ? 1 : this.#tokens);
   }
 
+  /** The number of tokens currently available to take immediately from the bucket. */
   get tokens() {
     return this.#tokens;
   }
 
+  /** The duration (in milliseconds) that elapses in between each token replenishment. */
   get interval() {
     return this.#interval;
   }
 
+  /** The number of tokens that are added after each interval. */
   get tokensPerInterval() {
     return this.#tokensPerInterval;
   }
 
+  /** The maximum number of tokens that may be available at one time. */
   get maxTokens() {
     return this.#maxTokens;
   }
 
+  /**
+   * Get a `Promise` that resolves when the given number of tokens are successfully removed from the bucket.
+   * @param {number} count The number of tokens to remove from the bucket.
+   * @returns {void}
+   */
   async removeTokens(count) {
     const { promise, resolve } = Promise.withResolvers();
     this.#queue.push({ count, resolve });
