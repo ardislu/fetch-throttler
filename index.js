@@ -77,7 +77,7 @@ export class Bucket {
   /**
    * Get a `Promise` that resolves when the given number of tokens are successfully removed from the bucket.
    * @param {number} count The number of tokens to remove from the bucket.
-   * @returns {void}
+   * @returns {Promise<void>}
    */
   async removeTokens(count) {
     const { promise, resolve } = Promise.withResolvers();
@@ -205,7 +205,7 @@ export class FetchThrottler {
 
   /**
    * 
-   * @param {string|URL|Request} resource 
+   * @param {string|URL} request 
    * @param {RequestInit} [options]
    * @returns 
    */
