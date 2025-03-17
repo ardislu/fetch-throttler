@@ -36,16 +36,8 @@ export function restoreFetch() {
  * A rate limiter for `fetch` calls.
  */
 export class FetchThrottler {
-  #id = 0;
-
-  /** @type {Map<string,number>} */
-  #hostnames = new Map();
-
-  /** @type {Map<number,Throttle>} */
-  #throttles = new Map();
-
-  /** @type {Map<number,Bucket>} */
-  #buckets = new Map();
+  /** @type {Map<string,{throttle:Throttle,bucket:Bucket}} */
+  #map = new Map();
 
   /**
    * @param {Throttle|Array<Throttle>} [throttle] A `Throttle` or array of `Throttle`s to initially configure for this instance.
@@ -58,7 +50,7 @@ export class FetchThrottler {
   }
 
   get throttles() {
-    return [...this.#throttles.values()];
+    return [...this.#map.values()].map(o => o.throttle);
   }
 
   /**
@@ -99,9 +91,7 @@ export class FetchThrottler {
    * Delete all throttles.
    */
   clear() {
-    this.#buckets.clear();
-    this.#throttles.clear();
-    this.#hostnames.clear();
+    this.#map.clear();
   }
 
   /**
@@ -113,13 +103,10 @@ export class FetchThrottler {
   async fetch(request, options) {
     const newUrl = new URL(request);
     const hostname = newUrl.hostname;
-    const throttleId = this.#hostnames.get(hostname);
-    if (throttleId === undefined) { // No throttle set for this hostname, bypass
+    const { throttle, bucket } = this.#map.get(hostname);
+    if (throttle === undefined) { // No throttle set for this hostname, bypass
       return STORE.fetch(request, options);
     }
-
-    const throttle = this.#throttles.get(throttleId);
-    const bucket = this.#buckets.get(throttleId);
 
     // Configure newRequest by merging custom throttle options
     const newParams = new URLSearchParams({
@@ -178,33 +165,16 @@ export class FetchThrottler {
     });
 
     // Set mappings
-    const throttleId = this.#id++;
     if (Array.isArray(throttle.hostname)) {
-      throttle.hostname.forEach(h => this.#hostnames.set(h, throttleId));
+      throttle.hostname.forEach(h => this.#map.set(h, { throttle, bucket }));
     }
     else {
-      this.#hostnames.set(throttle.hostname, throttleId);
+      this.#map.set(throttle.hostname, { throttle, bucket });
     }
-    this.#throttles.set(throttleId, throttle);
-    this.#buckets.set(throttleId, bucket);
   }
 
   #removeThrottle(hostname) {
-    const throttleId = this.#hostnames.get(hostname);
-    if (throttleId === undefined) {
-      return;
-    }
-    this.#hostnames.delete(hostname);
-    const throttle = this.#throttles.get(throttleId);
-    if (Array.isArray(throttle.hostname)) {
-      const i = throttle.hostname.indexOf(hostname);
-      throttle.hostname.splice(i, 1);
-      if (throttle.hostname.length > 0) {
-        return; // Keep throttle active because other hostnames are using it
-      }
-    }
-    this.#throttles.delete(throttleId);
-    this.#buckets.delete(throttleId);
+    this.#map.delete(hostname);
   }
 
   get [Symbol.toStringTag]() {
