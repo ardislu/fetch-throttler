@@ -80,8 +80,9 @@ export class FetchThrottler {
 
   /**
    * Stop throttling requests to a hostname.
-   * @param {string} hostname A hostname associated with an existing throttle. If no other hostnames are associated with the throttle,
-   * the throttle is deleted. Otherwise, the throttle continues to be active but is no longer applicable to the given hostname.
+   * @param {string|Array<string>} hostname A hostname or array of hostnames associated with an existing throttle. If no other
+   * hostnames are associated with the throttle, the throttle is deleted. Otherwise, the throttle continues to be active but is
+   * no longer applicable to the given hostname.
    */
   remove(hostname) {
     if (Array.isArray(hostname)) {
