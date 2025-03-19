@@ -103,8 +103,8 @@ export class FetchThrottler {
   async fetch(request, options) {
     const newUrl = new URL(request);
     const hostname = newUrl.hostname;
-    const { throttle, bucket } = this.#map.get(hostname);
-    if (throttle === undefined) { // No throttle set for this hostname, bypass
+    const { throttle, bucket } = this.#map.get(hostname) ?? {};
+    if (throttle === undefined || bucket === undefined) { // No throttle set for this hostname, bypass
       return STORE.fetch(request, options);
     }
 
@@ -114,17 +114,17 @@ export class FetchThrottler {
       ...Object.fromEntries(throttle.requestParams)
     });
     newUrl.search = `?${newParams}`;
-    const newHeaders = new Headers(options.headers);
+    const newHeaders = new Headers(options?.headers);
     Object.entries(throttle.requestOptions?.headers ?? {}).forEach(e => newHeaders.set(e[0], e[1]));
     const newOptions = Object.fromEntries([
-      ...Object.entries(options),
+      ...Object.entries(options ?? {}),
       ...Object.entries(throttle.requestOptions),
       ['headers', newHeaders]
     ]);
     const newRequest = new Request(newUrl, newOptions);
 
     // Block until tokens are removed from the bucket then fetch
-    await bucket.removeTokens(options.throttleTokens ?? 1);
+    await bucket.removeTokens(options?.throttleTokens ?? 1);
     return STORE.fetch(newRequest);
   }
 
