@@ -1,7 +1,7 @@
 import { Bucket } from './bucket.js';
 
 const STORE = {
-  fetch: globalThis.fetch.bind(globalThis)
+  fetch: globalThis.fetch.bind(undefined)
 }
 Object.freeze(STORE);
 
@@ -29,7 +29,7 @@ Object.freeze(STORE);
  * `dangerouslySetGlobalFetch` calls.
  */
 export function restoreFetch() {
-  globalThis.fetch = STORE.fetch;
+  globalThis.fetch = STORE.fetch.bind(undefined);
 }
 
 /**
