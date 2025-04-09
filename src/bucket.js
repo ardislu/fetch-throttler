@@ -26,7 +26,8 @@ export class Bucket {
   #tokensPerInterval;
   #maxTokens;
 
-  #intervalId = null;
+  /** @type {ReturnType<typeof setInterval> | undefined} */
+  #intervalId;
   /** @type {Array<Queuer>} */
   #queue = [];
 
@@ -67,7 +68,7 @@ export class Bucket {
     const { promise, resolve } = /** @type {ReturnType<typeof Promise.withResolvers<void>>} */(Promise.withResolvers());
     this.#queue.push({ count, resolve });
     this.#take();
-    if (this.#intervalId === null && this.#tokens < this.#maxTokens) {
+    if (this.#intervalId === undefined && this.#tokens < this.#maxTokens) {
       this.#start();
     }
     return promise;
@@ -102,7 +103,7 @@ export class Bucket {
 
       if (this.#tokens === this.#maxTokens && this.#queue.length === 0) {
         clearInterval(this.#intervalId);
-        this.#intervalId = null;
+        this.#intervalId = undefined;
       }
     }, this.#interval);
   }
