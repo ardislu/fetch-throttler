@@ -78,7 +78,7 @@ export class Bucket {
     let i;
     for (i = 0; i < this.#queue.length; i++) {
       const next = this.#queue[i];
-      if (next !== undefined && this.#tokens >= next.count) {
+      if (this.#tokens >= next.count) {
         this.#tokens -= next.count;
         next.resolve();
       }
