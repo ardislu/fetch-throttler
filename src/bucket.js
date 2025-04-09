@@ -11,6 +11,13 @@
  */
 
 /**
+ * @typedef {Object} Queuer
+ * @property {number} count The number of tokens that will be consumed by the queuer.
+ * @property {()=>void} resolve Callback that resolves the promise associated with this queuer (i.e., resolves the
+ * `removeTokens` promise).
+ */
+
+/**
  * A basic implementation of the "token bucket" abstraction.
  */
 export class Bucket {
@@ -20,6 +27,7 @@ export class Bucket {
   #maxTokens;
 
   #intervalId = null;
+  /** @type {Array<Queuer>} */
   #queue = [];
 
   /** @param {BucketOptions} options */
@@ -56,7 +64,7 @@ export class Bucket {
    * @returns {Promise<void>}
    */
   async removeTokens(count) {
-    const { promise, resolve } = Promise.withResolvers();
+    const { promise, resolve } = /** @type {ReturnType<typeof Promise.withResolvers<void>>} */(Promise.withResolvers());
     this.#queue.push({ count, resolve });
     this.#take();
     if (this.#intervalId === null && this.#tokens < this.#maxTokens) {
