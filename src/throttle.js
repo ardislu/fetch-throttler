@@ -58,16 +58,13 @@ export class FetchThrottler {
    * @param {Throttle|Array<Throttle>} throttle A `Throttle` or array of `Throttle`s to add.
    */
   add(throttle) {
-    if (Array.isArray(throttle)) {
-      for (const t of throttle) {
-        this.remove(t.hostname);
-        this.#addThrottle(t);
-      };
+    if (!Array.isArray(throttle)) {
+      throttle = [throttle];
     }
-    else {
-      this.remove(throttle.hostname);
-      this.#addThrottle(throttle);
-    }
+    for (const t of throttle) {
+      this.remove(t.hostname);
+      this.#addThrottle(t);
+    };
   }
 
   /**
@@ -77,13 +74,11 @@ export class FetchThrottler {
    * no longer applicable to the given hostname.
    */
   remove(hostname) {
-    if (Array.isArray(hostname)) {
-      for (const h of hostname) {
-        this.#removeThrottle(h);
-      }
+    if (!Array.isArray(hostname)) {
+      hostname = [hostname];
     }
-    else {
-      this.#removeThrottle(hostname);
+    for (const h of hostname) {
+      this.#removeThrottle(h);
     }
   }
 
@@ -165,11 +160,11 @@ export class FetchThrottler {
     });
 
     // Set mappings
-    if (Array.isArray(throttle.hostname)) {
-      throttle.hostname.forEach(h => this.#map.set(h, { throttle, bucket }));
+    if (!Array.isArray(throttle.hostname)) {
+      throttle.hostname = [throttle.hostname];
     }
-    else {
-      this.#map.set(throttle.hostname, { throttle, bucket });
+    for (const h of throttle.hostname) {
+      this.#map.set(h, { throttle, bucket });
     }
   }
 
