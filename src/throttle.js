@@ -6,6 +6,12 @@ const STORE = {
 Object.freeze(STORE);
 
 /**
+ * @typedef {RequestInit & {throttleTokens?: number}} ThrottleRequestInit Extended `RequestInit` with a
+ * `throttleTokens` property.
+ * @property {number} [throttleTokens=1] The number of tokens this request consumes. The default value is `1`.
+ */
+
+/**
  * @typedef {Object} Throttle
  * @property {string|Array<string>} hostname A hostname or array of hostnames that this throttling applies to. If
  * multiple hostname are provided, all hostnames share the same throttle.
@@ -20,8 +26,8 @@ Object.freeze(STORE);
  * are throttled.
  * @property {string|string[][]|Record<string,string>|URLSearchParams} [requestParams] Additional URL parameters
  * to pass with `fetch` calls to the hostname(s) (e.g., API key parameter).
- * @property {RequestInit} [requestOptions] Additional request options to pass with `fetch` calls to the hostname(s)
- * (e.g., `Authorization` header).
+ * @property {ThrottleRequestInit} [requestOptions] Additional request options to pass with `fetch` calls to the
+ * hostname(s) (e.g., `Authorization` header).
  */
 
 /**
@@ -36,7 +42,7 @@ export function restoreFetch() {
  * A rate limiter for `fetch` calls.
  */
 export class FetchThrottler {
-  /** @type {Map<string,{throttle:Throttle,bucket:Bucket}} */
+  /** @type {Map<string,{throttle:Throttle,bucket:Bucket}>} */
   #map = new Map();
 
   /**
@@ -92,7 +98,7 @@ export class FetchThrottler {
   /**
    * 
    * @param {string|URL} request 
-   * @param {RequestInit} [options]
+   * @param {ThrottleRequestInit} [options]
    * @returns 
    */
   async fetch(request, options) {
@@ -137,6 +143,7 @@ export class FetchThrottler {
     return this.throttles;
   }
 
+  /** @param {Throttle} throttle */
   #addThrottle(throttle) {
     // Input sanitation
     if (typeof throttle.interval === 'string') {
@@ -168,6 +175,7 @@ export class FetchThrottler {
     }
   }
 
+  /** @param {string} hostname */
   #removeThrottle(hostname) {
     this.#map.delete(hostname);
   }
