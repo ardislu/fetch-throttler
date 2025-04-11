@@ -105,8 +105,8 @@ export class FetchThrottler {
 
     // Configure newRequest by merging custom throttle options
     const newParams = new URLSearchParams({
-      ...Object.fromEntries(newUrl.searchParams),
-      ...Object.fromEntries(throttle.requestParams)
+      ...Object.fromEntries(new URLSearchParams(newUrl.searchParams)),
+      ...Object.fromEntries(new URLSearchParams(throttle.requestParams))
     });
     newUrl.search = `?${newParams}`;
     const newHeaders = new Headers(options?.headers);
