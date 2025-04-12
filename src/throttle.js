@@ -1,9 +1,8 @@
 import { Bucket } from './bucket.js';
 
-const STORE = {
+const STORE = Object.freeze({
   fetch: globalThis.fetch.bind(undefined)
-}
-Object.freeze(STORE);
+});
 
 /**
  * @typedef {RequestInit & {throttleTokens?: number}} ThrottleRequestInit Extended `RequestInit` with a
