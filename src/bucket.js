@@ -91,16 +91,8 @@ export class Bucket {
 
   #start() {
     this.#intervalId = setInterval(() => {
-      const newTokens = this.#tokens + this.#tokensPerInterval;
-      if (newTokens > this.#maxTokens) {
-        this.#tokens = this.#maxTokens;
-      }
-      else {
-        this.#tokens = newTokens;
-      }
-
+      this.#tokens = Math.min(this.#tokens + this.#tokensPerInterval, this.#maxTokens);
       this.#take();
-
       if (this.#tokens === this.#maxTokens && this.#queue.length === 0) {
         clearInterval(this.#intervalId);
         this.#intervalId = undefined;
