@@ -116,11 +116,11 @@ export class FetchThrottler {
     newUrl.search = `?${newParams}`;
     const newHeaders = new Headers(options?.headers);
     Object.entries(throttle.requestOptions?.headers ?? {}).forEach(e => newHeaders.set(e[0], e[1]));
-    const newOptions = Object.fromEntries([
-      ...Object.entries(options ?? {}),
-      ...Object.entries(throttle?.requestOptions ?? {}),
-      ['headers', newHeaders]
-    ]);
+    const newOptions = {
+      ...options ?? {},
+      ...throttle?.requestOptions ?? {},
+      ...{ headers: newHeaders }
+    };
     const newRequest = new Request(newUrl, newOptions);
 
     // Block until tokens are removed from the bucket then fetch
