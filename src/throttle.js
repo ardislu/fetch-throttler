@@ -55,7 +55,7 @@ export class FetchThrottler {
   }
 
   get throttles() {
-    return [...this.#map.values()].map(o => o.throttle);
+    return this.#map.values().map(o => o.throttle).toArray();
   }
 
   /**
