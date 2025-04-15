@@ -60,12 +60,16 @@ export class Bucket {
   }
 
   /**
-   * Get a `Promise` that resolves when the given number of tokens are successfully removed from the bucket.
+   * Get in a queue (first in, first out) to remove a given number of tokens from the bucket.
    * @param {number} count The number of tokens to remove from the bucket.
-   * @returns {Promise<void>}
+   * @returns {Promise<void>} A promise that will fulfill when the tokens are successfully removed from the bucket, or reject
+   * if the requested token count exceeds the bucket's maximum capacity.
    */
   removeTokens(count) {
-    const { promise, resolve } = /** @type {ReturnType<typeof Promise.withResolvers<void>>} */(Promise.withResolvers());
+    const { promise, resolve, reject } = /** @type {ReturnType<typeof Promise.withResolvers<void>>} */(Promise.withResolvers());
+    if (count > this.#maxTokens) {
+      reject(new RangeError(`Requested token count of ${count} exceeds bucket's maximum capacity of ${this.#maxTokens}.`));
+    }
     this.#queue.push({ count, resolve });
     this.#take();
     if (this.#intervalId === undefined && this.#tokens < this.#maxTokens) {
