@@ -74,6 +74,7 @@ export class Bucket {
     return promise;
   }
 
+  /** Remove as many `Queuer`s from the queue as possible, in order of entry (first in, first out). */
   #take() {
     let i;
     for (i = 0; i < this.#queue.length; i++) {
@@ -89,6 +90,7 @@ export class Bucket {
     this.#queue = this.#queue.slice(i);
   }
 
+  /** Start a replenishment and `take` loop until the queue is empty and the bucket is at max capacity. */
   #start() {
     this.#intervalId = setInterval(() => {
       this.#tokens = Math.min(this.#tokens + this.#tokensPerInterval, this.#maxTokens);

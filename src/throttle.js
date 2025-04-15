@@ -1,7 +1,7 @@
 import { Bucket } from './bucket.js';
 
 const STORE = Object.freeze({
-  fetch: globalThis.fetch.bind(undefined)
+  fetch: /** @type {fetch} */(globalThis.fetch.bind(undefined))
 });
 
 /**
@@ -37,9 +37,7 @@ export function restoreFetch() {
   globalThis.fetch = STORE.fetch.bind(undefined);
 }
 
-/**
- * A rate limiter for `fetch` calls.
- */
+/** A rate limiter for `fetch` calls. */
 export class FetchThrottler {
   /** @type {Map<string,{throttle:Throttle,bucket:Bucket}>} */
   #map = new Map();
@@ -54,6 +52,7 @@ export class FetchThrottler {
     }
   }
 
+  /** An array of all currently active `Throttle`s that are enforced by this `FetchThrottler`. */
   get throttles() {
     return this.#map.values().map(o => o.throttle).toArray();
   }
@@ -87,18 +86,18 @@ export class FetchThrottler {
     }
   }
 
-  /**
-   * Delete all throttles.
-   */
+  /** Delete all throttles. */
   clear() {
     this.#map.clear();
   }
 
   /**
-   * 
+   * A `fetch` wrapper that restricts outgoing requests according to the `Throttle`s configured on this `FetchThrottler`
+   * and may inject extra headers or search parameters if configured. If no `Throttle` is configured for a given hostname,
+   * the request is passed through with no changes.
    * @param {string|URL} request 
    * @param {ThrottleRequestInit} [options]
-   * @returns 
+   * @returns {Promise<Response>}
    */
   async fetch(request, options) {
     const newUrl = new URL(request);
