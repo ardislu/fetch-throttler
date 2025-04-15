@@ -64,7 +64,7 @@ export class Bucket {
    * @param {number} count The number of tokens to remove from the bucket.
    * @returns {Promise<void>}
    */
-  async removeTokens(count) {
+  removeTokens(count) {
     const { promise, resolve } = /** @type {ReturnType<typeof Promise.withResolvers<void>>} */(Promise.withResolvers());
     this.#queue.push({ count, resolve });
     this.#take();
