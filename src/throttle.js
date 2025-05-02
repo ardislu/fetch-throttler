@@ -137,6 +137,12 @@ export class FetchThrottler {
     globalThis.fetch = this.fetch.bind(this);
   }
 
+  /**
+   * Serialize all active throttles used by this `FetchThrottler` into JSON, except for the `shouldThrottle` property.
+   * If a custom `shouldThrottle` function is used, the function must be manually reconstructed.
+   * 
+   * The JSON returned by this function can be passed into the constructor of a new `FetchThrottler` to recreate it.
+   */
   toJSON() {
     return this.throttles;
   }
