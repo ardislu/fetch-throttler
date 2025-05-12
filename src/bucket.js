@@ -17,6 +17,12 @@
  * `removeTokens` promise).
  */
 
+/** 
+ * A `FinalizationRegistry` to clear ongoing intervals within a bucket if the bucket has been garbage collected.
+ * @type {FinalizationRegistry<WeakRef<ReturnType<typeof setTimeout>>>}
+ */
+const registry = new FinalizationRegistry(ref => clearInterval(ref.deref()));
+
 /**
  * A basic implementation of the "token bucket" abstraction.
  */
@@ -96,13 +102,17 @@ export class Bucket {
 
   /** Start a replenishment and `take` loop until the queue is empty and the bucket is at max capacity. */
   #start() {
+    const ref = new WeakRef(this);
     this.#intervalId = setInterval(() => {
-      this.#tokens = Math.min(this.#tokens + this.#tokensPerInterval, this.#maxTokens);
-      this.#take();
-      if (this.#tokens === this.#maxTokens && this.#queue.length === 0) {
-        clearInterval(this.#intervalId);
-        this.#intervalId = undefined;
+      const self = ref.deref();
+      if (self === undefined) { return; }
+      self.#tokens = Math.min(self.#tokens + self.#tokensPerInterval, self.#maxTokens);
+      self.#take();
+      if (self.#tokens === self.#maxTokens && self.#queue.length === 0) {
+        clearInterval(self.#intervalId);
+        self.#intervalId = undefined;
       }
     }, this.#interval);
+    registry.register(this, new WeakRef(this.#intervalId));
   }
 }
