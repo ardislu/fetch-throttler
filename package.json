@@ -7,7 +7,19 @@
   "license": "MIT",
   "type": "module",
   "files": [
+    "types/*",
     "src/*"
   ],
-  "exports": "./src/index.js"
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "scripts": {
+    "types": "tsc ./src/index.js --allowJs --declaration --emitDeclarationOnly --declarationMap --outFile ./types/index.d.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
 }
