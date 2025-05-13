@@ -19,9 +19,9 @@
 
 /** 
  * A `FinalizationRegistry` to clear ongoing intervals within a bucket if the bucket has been garbage collected.
- * @type {FinalizationRegistry<WeakRef<ReturnType<typeof setTimeout>>>}
+ * @type {FinalizationRegistry<ReturnType<typeof setInterval>>}
  */
-const registry = new FinalizationRegistry(ref => clearInterval(ref.deref()));
+const registry = new FinalizationRegistry(clearInterval);
 
 /**
  * A basic implementation of the "token bucket" abstraction.
@@ -113,6 +113,6 @@ export class Bucket {
         self.#intervalId = undefined;
       }
     }, this.#interval);
-    registry.register(this, new WeakRef(this.#intervalId));
+    registry.register(this, this.#intervalId);
   }
 }
